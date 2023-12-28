@@ -18,6 +18,9 @@
 .product-grid {
   width: 100%;
 }
+.hero-wid{
+  width: 100vw;
+}
 
 .hero-heading {
   color: #fff;

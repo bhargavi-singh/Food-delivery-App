@@ -13,11 +13,12 @@ import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
 import "./Products.css";
+import ProductCard from "./ProductCard";
 
 // Definition of Data Structures used
 /**
  * @typedef {Object} Product - Data on product available to buy
- * 
+ *
  * @property {string} name - The name or title of the product
  * @property {string} category - The category that the product belongs to
  * @property {number} cost - The price to buy the product
@@ -26,13 +27,18 @@ import "./Products.css";
  * @property {string} _id - Unique ID for the product
  */
 
-
 const Products = () => {
+  let { enqueueSnackbar } = useSnackbar();
 
+  const [filteredProducts,setFilteredProducts]  = useState([])
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [TimeOutId,setTimeoutId] = useState(null)
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Fetch products data and store it
   /**
    * Make API call to get the products list and store it to display the products
    *
+   * 
    * @returns { Array.<Product> }
    *      Array of objects with complete data on all available products
    *
@@ -67,7 +73,30 @@ const Products = () => {
    * }
    */
   const performAPICall = async () => {
+    setLoading(true);
+    try {
+      
+      const data = await axios.get("http://127.0.0.1:8082/api/v1/products");
+
+      console.log(data);
+      setProducts(data.data);
+      setFilteredProducts(data.data)
+    } catch (e) {
+      if (e.response && e.response.status === 400) {
+        enqueueSnackbar(e.response.data.message, { variant: "error" });
+      } else {
+        enqueueSnackbar(
+          "Something went wrong. Check that the backend is running, reachable and returns valid JSON.",
+          { variant: "error" }
+        );
+      }
+    }
+    setLoading(false);
   };
+
+  useEffect(() => {
+    performAPICall();
+  }, []);
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Implement search logic
   /**
@@ -84,6 +113,32 @@ const Products = () => {
    *
    */
   const performSearch = async (text) => {
+
+    setLoading(true);
+
+    try{
+      const res = await axios.get(`http://127.0.0.1:8082/api/v1/products/search?value=${text}`)
+      setFilteredProducts(res.data)
+    }
+    catch(e){
+      if(e.response){
+      if(e.response.status === 404){
+        setFilteredProducts([])
+      }
+      else if( e.response.status === 500){
+        enqueueSnackbar(e.response.data.message, { variant: "error" });
+        setFilteredProducts(products)
+      }
+    }
+      else{
+        enqueueSnackbar(
+          "Something went wrong. Check that the backend is running, reachable and returns valid JSON.",
+          { variant: "error" }
+        );
+      }
+    
+    }
+    setLoading(false)
   };
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Optimise API calls with debounce search implementation
@@ -99,19 +154,37 @@ const Products = () => {
    *
    */
   const debounceSearch = (event, debounceTimeout) => {
+    let text = event.target.value
+      if(debounceTimeout){
+        clearTimeout(debounceTimeout)
+      }
+    
+    let timeOut = setTimeout(()=>{
+      performSearch(text)
+    },500)
+    setTimeoutId(timeOut)
+    
   };
-
-
-
-
-
-
 
   return (
     <div>
       <Header>
         {/* TODO: CRIO_TASK_MODULE_PRODUCTS - Display search bar in the header for Products page */}
-
+        <TextField
+        className="search-desktop"
+        size="small"
+        
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <Search color="primary" />
+            </InputAdornment>
+          ),
+        }}
+        placeholder="Search for items/categories"
+        name="search"
+        onChange={(e)=>debounceSearch(e,TimeOutId)}
+      />
       </Header>
 
       {/* Search view for mobiles */}
@@ -128,17 +201,66 @@ const Products = () => {
         }}
         placeholder="Search for items/categories"
         name="search"
+        onChange={(e)=>debounceSearch(e,TimeOutId)}
       />
-       <Grid container>
-         <Grid item className="product-grid">
-           <Box className="hero">
-             <p className="hero-heading">
-               India’s <span className="hero-highlight">FASTEST DELIVERY</span>{" "}
-               to your door step
-             </p>
-           </Box>
-         </Grid>
-       </Grid>
+      <Grid container>
+        <Grid item container>
+          <Grid container>
+            <Grid item container className="product-grid">
+              <Box className="hero hero-wid">
+                <p className="hero-heading">
+                  India’s{" "}
+                  <span className="hero-highlight">FASTEST DELIVERY</span> to
+                  your door step
+                </p>
+              </Box>
+            </Grid>
+          </Grid>
+          {loading ? (
+            <Box display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            className="loading"
+            py={10}
+            mx={45}
+            >
+              <CircularProgress size={40} />
+              <h4>Loading Products...</h4>
+            </Box>
+          ) : (
+            <Grid
+              container
+              spacing={1}
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+              my={1}
+            >
+              {filteredProducts.length?(
+                filteredProducts.map((item) => (
+                  <Grid key={item["_id"]} item md={3} xs={6}>
+                    {" "}
+                    <ProductCard product={item}  />{" "}
+                  </Grid>
+                ))
+              ):(
+              <Box
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center"
+                py={10}>
+                <SentimentDissatisfied size={40}/>
+                <h4>No Products Found</h4>
+              </Box>
+              )}
+              
+            </Grid>
+          )}
+        </Grid>
+      </Grid>
+
       <Footer />
     </div>
   );

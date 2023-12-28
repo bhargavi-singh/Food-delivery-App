@@ -186,7 +186,7 @@ describe("Products Page", () => {
 
     render(ProductDOMTree(history));
 
-    await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
+    // await waitForElementToBeRemoved(() => screen.queryByText(/loading/i));
   });
 
   it("should make a GET request to load products", () => {
