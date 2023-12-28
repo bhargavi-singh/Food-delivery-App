@@ -83,6 +83,19 @@ const ItemQuantity = ({
   handleAdd,
   handleDelete,
 }) => {
+  return (
+    <Stack direction="row" alignItems="center">
+      <IconButton size="small" color="primary" onClick={handleDelete}>
+        <RemoveOutlined />
+      </IconButton>
+      <Box padding="0.5rem" data-testid="item-qty">
+        {value}
+      </Box>
+      <IconButton size="small" color="primary" onClick={handleAdd}>
+        <AddOutlined />
+      </IconButton>
+    </Stack>
+  );
 };
 
 /**
@@ -119,6 +132,7 @@ const Cart = ({
   return (
     <>
       <Box className="cart">
+        {/* TODO: CRIO_TASK_MODULE_CART - Display view for each cart item with non-zero quantity */}
         <Box
           padding="1rem"
           display="flex"
@@ -139,6 +153,16 @@ const Cart = ({
           </Box>
         </Box>
 
+        <Box display="flex" justifyContent="flex-end" className="cart-footer">
+          <Button
+            color="primary"
+            variant="contained"
+            startIcon={<ShoppingCart />}
+            className="checkout-btn"
+          >
+            Checkout
+          </Button>
+        </Box>
       </Box>
     </>
   );
