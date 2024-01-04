@@ -14,7 +14,6 @@
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "axios": "^0.24.0",
-    "eslint": "^7.11.0",
     "history": "^5.1.0",
     "notistack": "^2.0.3",
     "react": "^17.0.2",
@@ -38,9 +37,7 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": [
-      
-    ]
+    "extends": []
   },
   "browserslist": {
     "production": [
@@ -55,8 +52,8 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "axios-mock-adapter": "^1.20.0",
+
     "jest-localstorage-mock": "^2.4.18",
     "jest-location-mock": "^1.0.9"
   }

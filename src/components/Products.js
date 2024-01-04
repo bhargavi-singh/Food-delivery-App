@@ -384,6 +384,7 @@ const Products = () => {
         }}
         placeholder="Search for items/categories"
         name="search"
+        
         onChange={(e) => debounceSearch(e, TimeOutId)}
       />
       <Grid container>
